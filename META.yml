@@ -13,6 +13,7 @@ name: MojoX-Renderer-JSON
 no_index:
   directory:
     - inc
+    - t
 requires:
   JSON: 2.1
   perl: 5.8.8
