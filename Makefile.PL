@@ -1,21 +1,29 @@
 # -*- perl -*-
 
-use inc::Module::Install;
+BEGIN { require 5.008008; }
 
-perl_version    5.008008;
+use strict;
+use warnings;
+use ExtUtils::MakeMaker;
 
-module_name     'MojoX::Renderer::JSON';
-all_from        'lib/MojoX/Renderer/JSON.pm';
-
-resources  repository  => 'http://git.goingon.net/?p=MojoX-Renderer-JSON.git';
-
-requires        'JSON' => 2.10;
-
-auto_install;
-
-WriteAll(
-  sign => 1
+WriteMakefile(
+    ABSTRACT_FROM => 'lib/MojoX/Renderer/JSON.pm',
+    VERSION_FROM  => 'lib/MojoX/Renderer/JSON.pm',
+    AUTHOR        => q[Graham Barr <gbarr@cpan.org>],
+    NAME          => q[MojoX::Renderer::JSON],
+    PREREQ_PM     => {
+        'Test::More' => 0,
+        'JSON'       => '2.10',
+    },
+    (eval { ExtUtils::MakeMaker->VERSION(6.31) } ? (LICENSE => 'perl') : ()),
+    (   eval { ExtUtils::MakeMaker->VERSION(6.46) } ? (
+            META_MERGE => {
+                resources => {    ##
+                    repository => 'http://git.goingon.net/?p=MojoX-Renderer-JSON.git',
+                },
+            }
+          )
+        : ()
+    ),
 );
-
-
 
