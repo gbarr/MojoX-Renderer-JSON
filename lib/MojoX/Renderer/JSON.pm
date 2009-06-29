@@ -3,15 +3,36 @@ package MojoX::Renderer::JSON;
 use strict;
 use warnings;
 
-require JSON;
+our $VERSION = '0.11';
 
-our $VERSION = '0.10';
+sub _create_json {
+  my ($self, $class) = @_;
+  unless ($class =~ /\A[\w:]+\z/) {
+    die "invalid json_class '$class'";
+  }
+  eval "require $class";
+  die "can't load '$class': $@" if $@;
+  return $class->new;
+}
 
 sub build {
-  shift;    # ignore
+  my $self = shift;
 
-  my $json = JSON->new;
-  while (my ($method, $value) = splice(@_, 0, 2)) {
+  my ($class, $parms);
+  if ($_[0] && $_[0] =~ /\Ajson_/) {
+    my %args = @_;
+    $class = $args{json_class};
+    $parms = $args{json_params};
+  }
+  else {
+    $parms = \@_;
+  }
+
+  # fallback to JSON as default encoder class if needed
+  $class ||= 'JSON';
+
+  my $json = $self->_create_json($class);
+  while (my ($method, $value) = splice(@$parms, 0, 2)) {
     $json->$method($value) if $json->can($method);
   }
 
@@ -65,6 +86,14 @@ The template name is ignored.
 This method returns a handler for the Mojo renderer.
 
 Supported parameters are any method defined in L<JSON>, the given value will be passed as an argument.
+
+If you need to specify other class than L<JSON> (eg. L<JSON::XS> or some subclass)
+you can use:
+
+  my $render = MojoX::Renderer::JSON->build(
+    json_class  => 'MyJSON',
+    json_params => [ canonical => 1, param1 => 'value1' ],
+  );
 
 =head1 AUTHOR
 
